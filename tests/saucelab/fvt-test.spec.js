@@ -8,7 +8,7 @@
 	var until = require('selenium-webdriver').until;
 	var assert = require('assert');
 	var sauceLabs = require('saucelabs');
-    
+
 	var SAUCELABSURL = 'http://ondemand.saucelabs.com:80/wd/hub';
 	var DEMODRAURL = 'https://demodratest.mybluemix.net/#/';
 
@@ -47,8 +47,8 @@
       });
     });
 
-    it("Check for zip4 element", function(done) {
-      driver.isElementPresent(webdriver.By.id('zip4')).then(function(present) {
+    it("Check for city4 element", function(done) {
+      driver.isElementPresent(webdriver.By.id('city4')).then(function(present) {
         assert.equal(present, true);
         done();
       });
@@ -61,17 +61,17 @@
       });
     });
 
-    it("Enter zip code and check output - 1", function(done) {
-      driver.findElement(webdriver.By.id('zip1')).sendKeys('78613');
-      driver.findElement(webdriver.By.id('zip1city')).getText().then(function(text) {
+    it("Enter city and check output - 1", function(done) {
+      driver.findElement(webdriver.By.id('city1')).sendKeys('78613');
+      driver.findElement(webdriver.By.id('city1name')).getText().then(function(text) {
         assert.equal(text, ' Anderson Mill');
         done();
       });
     });
 
-    it("Enter zip code and check output - 2", function(done) {
-      driver.findElement(webdriver.By.id('zip4')).sendKeys('75038');
-      driver.findElement(webdriver.By.id('zip4city')).getText().then(function(text) {
+    it("Enter city and check output - 2", function(done) {
+      driver.findElement(webdriver.By.id('city4')).sendKeys('75038');
+      driver.findElement(webdriver.By.id('city4name')).getText().then(function(text) {
         assert.equal(text, ' Irving');
         done();
       });
