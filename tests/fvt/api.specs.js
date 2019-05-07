@@ -15,7 +15,7 @@
 
     describe('Get Weather', function() {
 
-    	it('with valid city code', function(done) {
+    	it('with valid city', function(done) {
         if(!appUrl) {
             assert.fail("Environment variable APP_URL is not defined");
             return done();

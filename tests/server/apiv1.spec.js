@@ -29,7 +29,7 @@
 
   describe('Get Weather', function() {
 
-    it('with without city', function() {
+    it('without city', function() {
       reqMock = {
         query: {
 
@@ -79,7 +79,7 @@
       assert(resMock.send.lastCall.args[0].msg === 'Failed', 'Unexpected response:' + resMock.send.lastCall.args);
     });
 
-    it('with valid city code', function() {
+    it('with valid city', function() {
       reqMock = {
         query: {
           city: "El Paso"
