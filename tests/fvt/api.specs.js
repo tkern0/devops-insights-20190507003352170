@@ -29,7 +29,7 @@
           	} else {
               assert.equal(resp.statusCode, 200);
               var pbody = JSON.parse(body);
-              assert(pbody.city === 'Hamilton'), "City name was not returned correctly");
+              assert(pbody.city === 'Hamilton', "City name was not returned correctly");
               done();
             }
         });
