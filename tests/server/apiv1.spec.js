@@ -111,77 +111,25 @@
       assert(resMock.send.lastCall.args[0].city === 'El Paso', 'Unexpected response:' + resMock.send.lastCall.args[0].city);
       assert(resMock.send.lastCall.args[0].weather === 'Conditions are cold and temperature is 11 C', 'Unexpected response:' + resMock.send.lastCall.args[0].weather);
     });
-  });
 
-  describe('Get Weather 2', function() {
-
-    it('with without city', function() {
+    it('with valid lat lon', function() {
       reqMock = {
         query: {
-
-        }
-      };
-
-      apiv1.getWeather2(reqMock, resMock);
-
-      assert(resMock.status.lastCall.calledWith(400), 'Unexpected status code:' + resMock.status.lastCall.args);
-    });
-
-    it('with valid city and error from request call', function() {
-      reqMock = {
-        query: {
-          city: "christchurch"
-        }
-      };
-
-      var request = function( obj, callback ){
-        callback("error", null, null);
-      };
-
-      apiv1.__set__("request", request);
-
-      apiv1.getWeather2(reqMock, resMock);
-
-      assert(resMock.status.lastCall.calledWith(400), 'Unexpected response:' + resMock.status.lastCall.args);
-      assert(resMock.send.lastCall.calledWith('Failed to get the data'), 'Unexpected response:' + resMock.send.lastCall.args);
-    });
-
-    it('with incomplete city name', function() {
-      reqMock = {
-        query: {
-          city: "Tauran"
-        }
-      };
-
-      var request = function( obj, callback ){
-        callback(null, null, {});
-      };
-
-      apiv1.__set__("request", request);
-
-      apiv1.getWeather2(reqMock, resMock);
-
-      assert(resMock.status.lastCall.calledWith(400), 'Unexpected response:' + resMock.status.lastCall.args);
-      assert(resMock.send.lastCall.args[0].msg === 'Failed', 'Unexpected response:' + resMock.send.lastCall.args);
-    });
-
-    it('with valid city', function() {
-      reqMock = {
-        query: {
-          city: 'El Paso'
+          lat: -35,
+          lon: 174
         }
       };
 
       var body = {
         cod: 200,
-        name: 'El Paso',
+        name: 'Kaeo',
         weather: [
           {
-            main: 'cold'
+            main: 'Rain'
           }
         ],
         main: {
-          temp: 11
+          temp: 16
         }
       };
 
@@ -191,11 +139,11 @@
 
       apiv1.__set__("request", request);
 
-      apiv1.getWeather2(reqMock, resMock);
+      apiv1.getWeather(reqMock, resMock);
 
       assert(resMock.status.lastCall.calledWith(200), 'Unexpected response:' + resMock.status.lastCall.args);
-      assert(resMock.send.lastCall.args[0].city === 'El Paso', 'Unexpected response:' + resMock.send.lastCall.args[0].city);
-      assert(resMock.send.lastCall.args[0].weather === 'Conditions are cold and temperature is 11 C', 'Unexpected response:' + resMock.send.lastCall.args[0].weather);
+      assert(resMock.send.lastCall.args[0].city === 'Kaeo', 'Unexpected response:' + resMock.send.lastCall.args[0].city);
+      assert(resMock.send.lastCall.args[0].weather === 'Conditions are Rain and temperature is 16 C', 'Unexpected response:' + resMock.send.lastCall.args[0].weather);
     });
   });
 }());
