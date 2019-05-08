@@ -3,7 +3,7 @@ function initMapPassThrough() {
     angular.element(document.getElementById("body")).scope().initMap()
 }
 
-var ConsoleModule = angular.module('ConsoleModule', ['ngRoute']);
+var ConsoleModule = angular.module('ConsoleModule', ['ngRoute', 'oc.lazyLoad']);
 
 ConsoleModule.config(['$routeProvider', '$locationProvider','$sceDelegateProvider', '$httpProvider',
     function ($routeProvider, $locationProvider, $sceDelegateProvider, $httpProvider) {
@@ -14,9 +14,10 @@ ConsoleModule.config(['$routeProvider', '$locationProvider','$sceDelegateProvide
     });
 }]);
 
-ConsoleModule.controller('wcontroller', ['$scope', '$http', '$routeParams', '$timeout', '$sce',
+ConsoleModule.controller('wcontroller', ['$scope', '$http', '$routeParams', '$timeout', '$sce', '$oclazyLoad'
     function($scope, $http, $routeParams, $timeout, $sce) {
 
+    $ocLazyLoad.load('https://maps.googleapis.com/maps/api/js?key=AIzaSyBrafZjNoBogHKBca6JdCY280XALGdMzrU&callback=initMapPassThrough');
     var map;
     function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {

@@ -8,6 +8,7 @@
     "bower": "^1.3.12",
     "ejs": "*",
     "express": "*",
+    "oclazyload": "^1.1.0",
     "request": "^2.65.0"
   },
   "engines": {
