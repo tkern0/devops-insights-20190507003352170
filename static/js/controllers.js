@@ -33,12 +33,15 @@ ConsoleModule.controller('wcontroller', ['$scope', '$http', '$routeParams', '$ti
         map.addListener('click', function(e) {
             $http({
                 method: "GET",
-                url: '/api/v1/getWeather?lat=' + e.latLng.lat + "&lon=" + e.latLng.lng
+                url: '/api/v1/getWeather?lat=' + e.latLng.lat() + "&lon=" + e.latLng.lng()
             }).then(function(response) {
                 if (response.data.msg == "Failed") {
                     return;
                 }
 
+                var city = response.data.city == "" ? "Unknown Location" : response.data.city;
+
+                $scope.city1m = city;
                 $scope.city1Weather = response.data.weather;
 
                 if (markers[0] != null) {
@@ -47,7 +50,7 @@ ConsoleModule.controller('wcontroller', ['$scope', '$http', '$routeParams', '$ti
                 markers[0] = new google.maps.Marker({
                     position: {lat: response.data.coord.lat, lng: response.data.coord.lon},
                     map: map,
-                    title: response.data.city == "" ? "Unknown Location" : response.data.city
+                    title: city
                 });
             });
         });
