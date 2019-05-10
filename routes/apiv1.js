@@ -20,11 +20,11 @@ exports.getWeather = function(req, res) {
         var noLat = (lat === null) || (typeof(lat) === 'undefined');
         var noLon = (lon === null) || (typeof(lon) === 'undefined');
         if (noLat && noLon) {
-            return res.status(400).send('no required paramaters present');
+            return res.status(400).send({msg:'No required parameters present'});
         } else if (noLat) {
-            return res.status(400).send('longitude missing');
+            return res.status(400).send({msg:'Latitude missing'});
         } else if (noLon) {
-            return res.status(400).send('latitude missing');
+            return res.status(400).send({msg:'Longitude missing'});
         }
         aurl = OPENWEATHERURL + '&lat=' + lat + '&lon=' + lon;
     } else {

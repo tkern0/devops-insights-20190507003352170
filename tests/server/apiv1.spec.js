@@ -39,8 +39,8 @@
             apiv1.__set__("request", request);
             apiv1.getWeather(reqMock, resMock);
 
-            assert(resMock.status.lastCall.calledWith(400), 'Unexpected response:' + resMock.status.lastCall.args);
-            assert(resMock.send.lastCall.calledWith('Failed to get the data'), 'Unexpected response:' + resMock.send.lastCall.args);
+            assert(resMock.status.lastCall.calledWith(400), 'Unexpected response: ' + resMock.status.lastCall.args);
+            assert(resMock.send.lastCall.calledWith('Failed to get the data'), 'Unexpected response: ' + resMock.send.lastCall.args);
         });
         it('with incomplete city name', function() {
             reqMock = {query: {
@@ -53,8 +53,8 @@
             apiv1.__set__("request", request);
             apiv1.getWeather(reqMock, resMock);
 
-            assert(resMock.status.lastCall.calledWith(400), 'Unexpected response:' + resMock.status.lastCall.args);
-            assert(resMock.send.lastCall.args[0].msg === 'Failed', 'Unexpected response:' + resMock.send.lastCall.args);
+            assert(resMock.status.lastCall.calledWith(400), 'Unexpected response: ' + resMock.status.lastCall.args);
+            assert(resMock.send.lastCall.args[0].msg === 'Failed', 'Unexpected response: ' + resMock.send.lastCall.args);
         });
         it('with valid city', function() {
             reqMock = {query: {
@@ -77,9 +77,9 @@
             apiv1.__set__("request", request);
             apiv1.getWeather(reqMock, resMock);
 
-            assert(resMock.status.lastCall.calledWith(200), 'Unexpected response:' + resMock.status.lastCall.args);
-            assert(resMock.send.lastCall.args[0].city === 'El Paso', 'Unexpected response:' + resMock.send.lastCall.args[0].city);
-            assert(resMock.send.lastCall.args[0].weather === 'Conditions are cold and temperature is 11 C', 'Unexpected response:' + resMock.send.lastCall.args[0].weather);
+            assert(resMock.status.lastCall.calledWith(200), 'Unexpected response: ' + resMock.status.lastCall.args);
+            assert(resMock.send.lastCall.args[0].city === 'El Paso', 'Unexpected response: ' + resMock.send.lastCall.args[0].city);
+            assert(resMock.send.lastCall.args[0].weather === 'Conditions are cold and temperature is 11 C', 'Unexpected response: ' + resMock.send.lastCall.args[0].weather);
         });
         it('with valid lat lon', function() {
             reqMock = {
@@ -105,9 +105,49 @@
             apiv1.__set__("request", request);
             apiv1.getWeather(reqMock, resMock);
 
-            assert(resMock.status.lastCall.calledWith(200), 'Unexpected response:' + resMock.status.lastCall.args);
-            assert(resMock.send.lastCall.args[0].city === 'Kaeo', 'Unexpected response:' + resMock.send.lastCall.args[0].city);
-            assert(resMock.send.lastCall.args[0].weather === 'Conditions are Rain and temperature is 16 C', 'Unexpected response:' + resMock.send.lastCall.args[0].weather);
+            assert(resMock.status.lastCall.calledWith(200), 'Unexpected response: ' + resMock.status.lastCall.args);
+            assert(resMock.send.lastCall.args[0].city === 'Kaeo', 'Unexpected response: ' + resMock.send.lastCall.args[0].city);
+            assert(resMock.send.lastCall.args[0].weather === 'Conditions are Rain and temperature is 16 C', 'Unexpected response: ' + resMock.send.lastCall.args[0].weather);
+        });
+        it('with just lat', function() {
+            reqMock = {query: {
+                lat: -35
+            }};
+
+            var request = function( obj, callback ){
+                callback(null, null, {});
+            };
+            apiv1.__set__("request", request);
+            apiv1.getWeather(reqMock, resMock);
+
+            assert(resMock.status.lastCall.calledWith(400), 'Unexpected response: ' + resMock.status.lastCall.args);
+            assert(resMock.send.lastCall.args[0].msg === 'Longitude missing', 'Unexpected response: ' + resMock.send.lastCall.args);
+        });
+        it('with just lon', function() {
+            reqMock = {query: {
+                lon: 174
+            }};
+
+            var request = function( obj, callback ){
+                callback(null, null, {});
+            };
+            apiv1.__set__("request", request);
+            apiv1.getWeather(reqMock, resMock);
+
+            assert(resMock.status.lastCall.calledWith(400), 'Unexpected response: ' + resMock.status.lastCall.args);
+            assert(resMock.send.lastCall.args[0].msg === 'Latitude missing', 'Unexpected response: ' + resMock.send.lastCall.args);
+        });
+        it('with no paramaters', function() {
+            reqMock = {query: {}};
+
+            var request = function( obj, callback ){
+                callback(null, null, {});
+            };
+            apiv1.__set__("request", request);
+            apiv1.getWeather(reqMock, resMock);
+
+            assert(resMock.status.lastCall.calledWith(400), 'Unexpected response: ' + resMock.status.lastCall.args);
+            assert(resMock.send.lastCall.args[0].msg === 'No required parameters present', 'Unexpected response: ' + resMock.send.lastCall.args);
         });
     });
 }());
