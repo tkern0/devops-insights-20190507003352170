@@ -1,6 +1,6 @@
 // The map is more useful to use inside the ConsoleModule so this function acts as a quick passthrough for the google api
 function initMap() {
-    angular.element(document.getElementById("body")).scope().initMap();
+    angular.element(document.getElementById("map")).scope().initMap();
 }
 
 var ConsoleModule = angular.module('ConsoleModule', ['ngRoute']);
@@ -16,6 +16,12 @@ ConsoleModule.config(['$routeProvider', '$locationProvider','$sceDelegateProvide
 
 ConsoleModule.controller('wcontroller', ['$scope', '$http', '$routeParams', '$timeout', '$sce',
     function($scope, $http, $routeParams, $timeout, $sce) {
+
+    // Kind of hacky cause it doesn't want to work manually putting it into the base document
+    var script = document.createElement('script');
+    script.setAttribute('src', 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAzJa1V-QaHdETwp3QMo1EOFS8ly5b0y6o&callback=initMap');
+    script.setAttribute('type', 'text/javascript');
+    document.getElementById('map').appendChild(script);
 
     var markers = [null, null, null, null];
     var map = null;
