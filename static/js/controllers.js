@@ -23,34 +23,122 @@ ConsoleModule.controller('wcontroller', ['$scope', '$http', '$routeParams', '$ti
     script.setAttribute('type', 'text/javascript');
     document.getElementById('map').appendChild(script);
 
+    cityNames = [
+        $scope.city1m,
+        $scope.city2m,
+        $scope.city3m,
+        $scope.city4m
+    ];
+    cityWeathers = [
+        $scope.city1Weather,
+        $scope.city2Weather,
+        $scope.city3Weather,
+        $scope.city4Weather
+    ];
+    function setWeather(response, index) {
+        if (response.data.msg == "Failed") {
+            return;
+        }
+
+        cityWeathers[index] = response.data.weather;
+
+        if (markers[index] != null) {
+            markers[index].setMap(null);
+        }
+        markers[index] = new google.maps.Marker({
+            position: {lat: response.data.coord.lat, lng: response.data.coord.lon},
+            map: map,
+            title: response.data.city
+        });
+    }
+
     var markers = [null, null, null, null];
     var map = null;
     $scope.initMap = function() {
+
         map = new google.maps.Map(document.getElementById('map'), {
             center: {lat: -40.62, lng: 174.73},
             zoom: 5
         });
+
         map.addListener('click', function(e) {
             $http({
                 method: "GET",
                 url: '/api/v1/getWeather?lat=' + e.latLng.lat() + "&lon=" + e.latLng.lng()
             }).then(function(response) {
-                if (response.data.msg == "Failed") {
-                    return;
+                setWeather(response, 0);
+            });
+        });
+
+        // Pull the default data from out db2 database
+        $http({
+            method: "POST",
+            url: "https://dashdb-txn-sbox-yp-dal09-03.services.dal.bluemix.net/dbapi/v3/auth/tokens",
+            // Not the best idea to put this out on github but I have no other way to get it into the app
+            data: {"userid": "dwb30208", "password": "rd3xnf696ns-lh58"}
+        }).then(function(response) {
+            var auth_header = {"Authorisation": "Bearer " + response.data.token};
+            $http({
+                method: "POST",
+                url: "https://dashdb-txn-sbox-yp-dal09-03.services.dal.bluemix.net/dbapi/v3/sql_jobs",
+                header: auth_header,
+                data: {
+                    "commands": "select * from dwb30208.data",
+                    "limit": "4",
+                    "separator": ";",
+                    "stop_on_error": "no"
                 }
+            }).then(function(response) {
+                $http({
+                    method: "GET",
+                    url: "https://dashdb-txn-sbox-yp-dal09-03.services.dal.bluemix.net/dbapi/v3/sql_jobs/" + response.data.id,
+                    header: auth_header
+                }).then(function(response) {
+                    // Get stored information
+                    var rows = response.data.results.rows;
+                    for (var i = 0; i < rows.length; i++) {
+                        var name = rows[i][1];
+                        var lat = rows[i][2];
+                        var lon = rows[i][3];
+                        var last = rows[i][4];
 
-                var city = response.data.city == "" ? "Unknown Location" : response.data.city;
+                        cityNames[i] = name;
+                        cityWeathers[i] = last;
 
-                $scope.city1m = city;
-                $scope.city1Weather = response.data.weather;
-
-                if (markers[0] != null) {
-                    markers[0].setMap(null);
-                }
-                markers[0] = new google.maps.Marker({
-                    position: {lat: response.data.coord.lat, lng: response.data.coord.lon},
-                    map: map,
-                    title: city
+                        markers[i] = new google.maps.Marker({
+                            position: {lat: lat, lng: lon},
+                            map: map,
+                            title: name
+                        });
+                    }
+                    /*
+                      Update information
+                      Can't put this in a loop cause it uses promises
+                    */
+                    $http({
+                        method: "GET",
+                        url: '/api/v1/getWeather?lat=' + rows[0][2] + "&lon=" + rows[0][3]
+                    }).then(function(response) {
+                        setWeather(response, 0);
+                    });
+                    $http({
+                        method: "GET",
+                        url: '/api/v1/getWeather?lat=' + rows[1][2] + "&lon=" + rows[1][3]
+                    }).then(function(response) {
+                        setWeather(response, 1);
+                    });
+                    $http({
+                        method: "GET",
+                        url: '/api/v1/getWeather?lat=' + rows[2][2] + "&lon=" + rows[2][3]
+                    }).then(function(response) {
+                        setWeather(response, 2);
+                    });
+                    $http({
+                        method: "GET",
+                        url: '/api/v1/getWeather?lat=' + rows[3][2] + "&lon=" + rows[3][3]
+                    }).then(function(response) {
+                        setWeather(response, 3);
+                    });
                 });
             });
         });
@@ -58,52 +146,11 @@ ConsoleModule.controller('wcontroller', ['$scope', '$http', '$routeParams', '$ti
 
     $scope.city = function(which) {
 
-        var data = "";
-        switch(which) {
-        case 1: {
-            data = $scope.city1m;
-            break;
-        } case 2: {
-            data = $scope.city2m;
-            break;
-        } case 3: {
-            data = $scope.city3m;
-            break;
-        } case 4: {
-            data = $scope.city4m;
-            break;
-        }}
-
         $http({
             method: "GET",
-            url: '/api/v1/getWeather?city=' + data
+            url: '/api/v1/getWeather?city=' + cityNames[which - 1]
         }).then(function(response) {
-            if (response.data.msg == "Failed") {
-                return;
-            }
-
-            switch(which) {
-            case 1: {
-                $scope.city1Weather = response.data.weather;
-                break;
-            } case 2: {
-                $scope.city2Weather = response.data.weather;
-                break;
-            } case 3: {
-                $scope.city3Weather = response.data.weather;
-                break;
-            } case 4: {
-                $scope.city4Weather = response.data.weather;
-            }}
-
-            if (markers[which - 1] != null) {
-                markers[which - 1].setMap(null);
-            }
-            markers[which - 1] = new google.maps.Marker({
-                position: {lat: response.data.coord.lat, lng: response.data.coord.lon},
-                map: map,
-                title: response.data.city
-            });
+            setWeather(response, which - 1);
         });
     };
 
