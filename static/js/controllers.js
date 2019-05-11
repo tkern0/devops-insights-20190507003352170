@@ -30,7 +30,6 @@ ConsoleModule.controller('wcontroller', ['$scope', '$http', '$routeParams', '$ti
             center: {lat: -40.62, lng: 174.73},
             zoom: 5
         });
-
         map.addListener('click', function(e) {
             $http({
                 method: "GET",
@@ -54,18 +53,6 @@ ConsoleModule.controller('wcontroller', ['$scope', '$http', '$routeParams', '$ti
                     title: city
                 });
             });
-        });
-
-        var ibmdb = require('ibm_db');
-        ibmdb.open("DATABASE=BLUDB;HOSTNAME=dashdb-txn-sbox-yp-dal09-03.services.dal.bluemix.net;PORT=50000;PROTOCOL=TCPIP;UID=hkk38222;PWD=l4470mfl0p69-g3n;", function (err,conn) {
-          if (err) return console.log(err);
-
-          conn.query('select * from hkk38222.data', function (err, data) {
-            if (err) console.log(err);
-            console.log(data);
-
-            conn.close();
-          });
         });
     };
 
