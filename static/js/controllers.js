@@ -54,6 +54,7 @@ ConsoleModule.controller('wcontroller', ['$scope', '$http', '$routeParams', '$ti
 
     var markers = [null, null, null, null];
     var map = null;
+    var auth = "";
     $scope.initMap = function() {
 
         map = new google.maps.Map(document.getElementById('map'), {
@@ -70,32 +71,35 @@ ConsoleModule.controller('wcontroller', ['$scope', '$http', '$routeParams', '$ti
             });
         });
 
-        // Pull the default data from out db2 database
-        $http({
-            method: "POST",
-            url: "https://dashdb-txn-sbox-yp-dal09-03.services.dal.bluemix.net/dbapi/v3/auth/tokens",
-            // Not the best idea to put this out on github but I have no other way to get it into the app
-            data: {"userid": "dwb30208", "password": "rd3xnf696ns-lh58"}
-        }).then(function(response) {
-            var auth_header = {"Authorisation": "Bearer " + response.data.token};
-            $http({
-                method: "POST",
-                url: "https://dashdb-txn-sbox-yp-dal09-03.services.dal.bluemix.net/dbapi/v3/sql_jobs",
-                header: auth_header,
-                data: {
-                    "commands": "select * from dwb30208.data",
-                    "limit": "4",
-                    "separator": ";",
-                    "stop_on_error": "no"
-                }
-            }).then(function(response) {
-                $http({
-                    method: "GET",
-                    url: "https://dashdb-txn-sbox-yp-dal09-03.services.dal.bluemix.net/dbapi/v3/sql_jobs/" + response.data.id,
-                    header: auth_header
-                }).then(function(response) {
+        /*
+          Pull the default data from out db2 database
+          For some reason $http doesn't want to work through the cors proxy properly, so we have to
+           use XMLHttpRequest()s instead
+        */
+        var base_url = "https://cors-anywhere.herokuapp.com/https://dashdb-txn-sbox-yp-dal09-03.services.dal.bluemix.net/dbapi/v3";
+        var xhr_token = new XMLHttpRequest();
+        xhr_token.open("POST", base_url + "/auth/tokens", true);
+        xhr_token.setRequestHeader('Content-type', 'application/json');
+        xhr_token.onload = function() {
+            var res_token = JSON.parse(xhr_token.responseText);
+            auth = "Bearer " + res_token.token;
+
+            var xhr_query = new XMLHttpRequest();
+            xhr_query.open("POST", base_url + "/sql_jobs", true);
+            xhr_query.setRequestHeader('Content-type', 'application/json');
+            xhr_query.setRequestHeader('Authorization', auth);
+            xhr_query.onload = function() {
+                var res_query = JSON.parse(xhr_query.responseText);
+
+                var xhr_data = new XMLHttpRequest();
+                xhr_data.open("GET", base_url + "/sql_jobs/" + res_query.id, true);
+                xhr_data.setRequestHeader('Content-type', 'application/json');
+                xhr_data.setRequestHeader('Authorization', auth);
+                xhr_data.onload = function() {
+                    var res_data = JSON.parse(xhr_data.responseText);
+
                     // Get stored information
-                    var rows = response.data.results.rows;
+                    var rows = res_data.results[0].rows;
                     for (var i = 0; i < rows.length; i++) {
                         var name = rows[i][1];
                         var lat = rows[i][2];
@@ -139,13 +143,24 @@ ConsoleModule.controller('wcontroller', ['$scope', '$http', '$routeParams', '$ti
                     }).then(function(response) {
                         setWeather(response, 3);
                     });
-                });
-            });
-        });
+                };
+                xhr_data.send();
+            };
+            xhr_query.send(JSON.stringify({
+                "commands":"select * from dwb30208.data",
+                "limit":"4",
+                "separator":";",
+                "stop_on_error":"no"
+            }));
+        };
+        // Not the best idea to put this out on github but I have no other way to get it into the app
+        xhr_token.send(JSON.stringify({
+            "userid": "dwb30208",
+            "password": "rd3xnf696ns-lh58"
+        }));
     };
 
     $scope.city = function(which) {
-
         $http({
             method: "GET",
             url: '/api/v1/getWeather?city=' + cityNames[which - 1]
