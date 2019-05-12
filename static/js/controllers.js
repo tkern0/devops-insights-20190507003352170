@@ -28,21 +28,22 @@ ConsoleModule.controller('wcontroller', ['$scope', '$http', '$routeParams', '$ti
             return;
         }
 
+        city = response.data.city == "" ? "Unknown Location" : response.data.city;
         switch(index) {
         case 0: {
-            $scope.city1m = response.data.city;
+            $scope.city1m = city;
             $scope.city1Weather = response.data.weather;
             break;
         } case 1: {
-            $scope.city2m = response.data.city;
+            $scope.city2m = city;
             $scope.city2Weather = response.data.weather;
             break;
         } case 2: {
-            $scope.city3m = response.data.city;
+            $scope.city3m = city;
             $scope.city3Weather = response.data.weather;
             break;
         } case 3: {
-            $scope.city4m = response.data.city;
+            $scope.city4m = city;
             $scope.city4Weather = response.data.weather;
             break;
         }}
@@ -58,15 +59,15 @@ ConsoleModule.controller('wcontroller', ['$scope', '$http', '$routeParams', '$ti
 
         // This data should already be sanitised by the openweathermap api
         runSQL(
-            "update dwb30208.data set name = " +
-            response.data.city, +
-            ", lat = " +
+            "update dwb30208.data set name = '" +
+            city +
+            "', lat = " +
             response.data.coord.lat +
             ", lon = " +
             response.data.coord.lon +
-            ", last = " +
+            ", last = '" +
             response.data.weather +
-            " where index = " +
+            "' where index = " +
             index
         );
     }
